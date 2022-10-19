@@ -1,15 +1,11 @@
-const cacheArr = ['/'];
-const CACHE_NAME = 'cache-v10';
+const CACHE_NAME = 'cache-v1';
 self.addEventListener('install', (event) => {
     console.log('worker is installed');
-    // event.waitUntil(
-    //     caches.open(CACHE_NAME).then((cache) => {
-    //       console.log("Opened cache");
-    //       cache.addAll(cacheArr).then(() => self.skipWaiting());
-    //     })
-    // );
+ // don't add cache here because worker will install only once and it will never update
 });
 
+//after install, check for activate
+//here we can delete the old cache if we update our cachename
 self.addEventListener("activate", (event) => {
     event.waitUntil(
       caches.keys().then((cacheNames) => {
@@ -24,21 +20,10 @@ self.addEventListener("activate", (event) => {
     );
   });
 
-//   self.addEventListener('fetch', (event) => {
-//     event.respondWith(
-//       caches.match(event.request)
-//         .then((response) => {
-//           // Cache hit - return response
-//           if (response) {
-//             return response;
-//           }
-//           return fetch(event.request).catch(() => caches.match(event.request));
-//         }
-//       )
-//     );
-//   });
-
+// caching logic applies here 
+// if user is offline, then catch block executes and returns the response from cache or else cache gets added
 self.addEventListener("fetch", (fetchEvent) => {
+    console.log('fetch event listener added');
     fetchEvent.respondWith(
         fetch(fetchEvent.request).then(res => {
             const cacheRes = res.clone();
